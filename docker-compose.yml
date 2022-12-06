@@ -1,0 +1,43 @@
+version: '3'
+services:
+  php_joanpere:
+    build: .docker #ruta al directorio del dockerfile.
+    #image: php:7.2-apache
+    working_dir: /var/www
+    ports:
+      - 80:80 #Exponemos el puerto 8080
+    extra_hosts:
+      - "front.menjador.cat:127.0.0.1"
+      - "back.menjador.cat:127.0.0.1"
+    hostname: menjador.cat
+    domainname: menjador.cat
+    volumes:
+      - .:/var/www #montamos la ruta donde estará la web
+      - ./.docker/apache/virtualhost.conf:/etc/apache2/sites-enabled/000-default.conf #el virtualhost del apache
+    depends_on:
+      - php_mariadb_joanpere
+      #environment:
+      #- "DB_PORT=3306"
+      #- "DB_HOST=database"
+  #https://enbonnet.me/article/1/no-instales-postgres-solo-utiliza-docker
+  #https://stackoverflow.com/questions/48552861/postgresql-no-postgresql-clusters-exist-see-man-pg-createcluster-during-ser
+  php_mariadb_joanpere:
+    image: mariadb
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=ucauca
+      - MARIADB_USER=joanpere
+      - MARIADB_PASSWORD=ucauca
+      - MARIADB_DATABASE=menjador_db
+    ports:
+      - 3306:3306
+volumes:
+  db-data:
+    driver: local
+# mysql -u root -p
+# create database menjador_db
+# SHOW DATABASES;
+# SELECT User FROM mysql.user;
+# GRANT ALL PRIVILEGES ON 'menjador_db'.* TO 'joanpere'@%;
+# GRANT ALL PRIVILEGES ON *.* TO 'joanpere'@'%' WITH GRANT OPTION;
+# FLUSH PRIVILEGES;
